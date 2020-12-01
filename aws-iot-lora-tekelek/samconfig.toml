@@ -1,0 +1,10 @@
+version = 0.1
+[default]
+[default.deploy]
+[default.deploy.parameters]
+stack_name = "aws-iot-tek-transform"
+s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-ai9w49eaagcu"
+s3_prefix = "aws-iot-tek-transform"
+region = "eu-west-1"
+confirm_changeset = true
+capabilities = "CAPABILITY_IAM"

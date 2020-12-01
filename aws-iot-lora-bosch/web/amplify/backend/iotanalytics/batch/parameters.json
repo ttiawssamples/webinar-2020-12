@@ -1,0 +1,11 @@
+{
+  "ProjectName": "boschxdk_app_project",
+  "ChannelName": "boschxdk_app_channel",
+  "DatastoreName": "boschxdk_app_datastore",
+  "PipelineName": "boschxdk_app_pipeline",
+  "DatasetName": "boschxdk_app_dataset",
+  "SqlQuery": "select concat(substring(time,1,19),'.000Z') as time, temperature, humidity, pressure, luminosity from boschxdk_app_datastore",
+  "ScheduleExpression": "cron(0/1 * * * ? *)",
+  "IoTRuleName": "boschxdk_app_analytics_rule1",
+  "IoTRuleSQL": "select uplink_message.settings.timestamp as timestamp, uplink_message.settings.time as time, uplink_message.decoded_payload.temperature_1 as temperature, uplink_message.decoded_payload.relative_humidity_2 as humidity, uplink_message.decoded_payload.barometric_pressure_3 as pressure,uplink_message.decoded_payload.luminosity_4 as luminosity from 'lorawan/+/uplink' WHERE end_device_ids.application_ids.application_id = 'bosch-xdk-app'"
+}
