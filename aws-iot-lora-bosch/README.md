@@ -44,6 +44,8 @@ Click on a sensor to view the detailed values received in realtime from that spe
 
 7. A cloud or self-hosted enterprise edition of [The Things Stack](https://thethingsstack.io/getting-started/)
 
+8. A LoRaWAN gateway configured in your Things Stack. [Instructions here](https://thethingsstack.io/gateways/adding-gateways/)
+
 After you have installed and configured Amplify, take note of the AWS profile you selected during the configuration. If you created a profile other than **default**, you will need the profile name for later steps in the deployment.
 
 ### **Installing**
@@ -53,13 +55,13 @@ If you run into issues installing or configuring anything in this project please
 **Clone this code repository**
 
 ```
-$ git clone https://github.com/aws-samples/aws-appsync-iot-core-realtime-dashboard.git
+$ git clone https://github.com/ttiawssamples/webinar-2020-12.git
 ```
 
-**Switch to the project's web folder**
+**Switch to the project's web folder for the Bosch XDK app**
 
 ```
-$ cd aws-appsync-iot-core-realtime-dashboard/web
+$ cd webinar-2020-12/aws-iot-lora-bosch/web
 ```
 
 **Install the web app's Node.js packages**
@@ -120,7 +122,7 @@ Resources being created in your account include:
 - Cognito User Pool
 - Lambda Functions (3)
 - IoT Rule
-- IoT Analytic
+- IoT Analytics
 
 **Configure Mapbox API key**
 
@@ -139,14 +141,18 @@ This application uses maps from [Mapbox](https://www.mapbox.com/) to display the
 This assumes you have already set up a LoRaWAN gateway linked to your TTI Account
 
 **Add a new Application**
-**Create an App Key**
+
+**Create an API Key for the device**
+
 **Add a new device**
+
+
+**Add an AWS Pub/Sub integration**
+Follow the [instructions here](https://thethingsstack.io/integrations/aws-iot/default/deployment-guide/)
 
 ## Configure your XDK sensor
 
-**Install the Bosch XDK Workbench**
-
-**Create a new LoRaWAN sample project**
+**Create a new LoRaWAN sample project in your XDK Workbench environment**
 
 **Set the App Key and App EUI in the sample code**
 
