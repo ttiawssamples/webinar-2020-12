@@ -6,14 +6,18 @@ Transforms raw string(base16) encode LoRa payload from Tekelek devices, form enh
 - Adapted from TypeScript transform function provided by Tekelek
 
 */
+const AWS = require('aws-sdk');
+const ENHANCED_TOPIC = "lorawan/tekelek/[thingName]/enhanced";
+
 exports.lambdaHandler = async (event, context) => {
     try {
 
-        console.log("EVENT: \n" + JSON.stringify(event, null, 2))
+        //         console.log("EVENT: \n" + JSON.stringify(event, null, 2))
 
         var p_raw_payload = event.payload;
         var p_device_eui = event.eui;
         var p_timestamp = event.timestamp;
+        var p_topic = ENHANCED_TOPIC.replace('[thingName]', event.eui);
 
         j_enhanced = {
             "device_eui": p_device_eui,
@@ -24,12 +28,40 @@ exports.lambdaHandler = async (event, context) => {
             "payload": decoder(parseHexString(p_raw_payload))
         }
 
+        // discover iot endpoint
+        var iot = new AWS.Iot();
+        var endpoint = "";
+        var params = {
+            endpointType: 'iot:Data-ATS'
+        };
+
+        iot.describeEndpoint(params, function (err, data) {
+            if (err) {
+                console.log(err, err.stack); // an error occurred
+                return err;
+            } else { // successful response, use endpoint to publish to topic
+
+                endpoint = data.endpointAddress;
+                const iotData = new AWS.IotData({ endpoint: endpoint });
+                var params = {
+                    payload: JSON.stringify(j_enhanced),
+                    topic: p_topic,
+                    qos: 0
+                };
+                iotData.publish(params, (err, res) => {
+                    if (err) return context.fail(err);
+                    console.log(res);
+                    return context.succeed();
+                });
+            }
+
+        });
+
     } catch (err) {
         console.log(err);
         return err;
     }
 
-    return j_enhanced
 };
 
 function parseHexString(str) {

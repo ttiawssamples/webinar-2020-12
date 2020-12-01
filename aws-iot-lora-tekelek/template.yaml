@@ -11,20 +11,169 @@ Globals:
     Timeout: 3
 
 Resources:
-  TransformLoraFunction:
+  ProcessUplinkTekelekFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
       CodeUri: transform-lora/
       Handler: app.lambdaHandler
       Runtime: nodejs12.x
+      Events:
+        ProcessUplinkTekelek:
+          Type: IoTRule
+          Properties:
+            Sql: 'select * from "lorawan/+/uplink" WHERE end_device_ids.application_ids.application_id = "<your TTI app id>"'
+      Policies:
+        - Version: "2012-10-17" # Policy Document
+          Statement:
+            - Effect: Allow
+              Action:
+                - iot:Publish
+              Resource: "*"
+Resources:
+  # DynamoDB table to store all events
+  TekelekEventsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      KeySchema:
+        - AttributeName: device_id
+          KeyType: HASH
+        - AttributeName: time
+          KeyType: RANGE
+      AttributeDefinitions:
+        - AttributeName: device_id
+          AttributeType: S
+        - AttributeName: time
+          AttributeType: S
+        - AttributeName: event_type
+          AttributeType: S
+      GlobalSecondaryIndexes:
+        - IndexName: event-type-Index
+          KeySchema:
+            - AttributeName: event_type
+              KeyType: HASH
+            - AttributeName: time
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: 5
+            WriteCapacityUnits: 5
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+      TableName: tekelek_events
+    UpdateReplacePolicy: Delete
+    DeletionPolicy: Delete
+
+
+  # IoT Analytics Channel
+  TekelekChannel:
+    Type: "AWS::IoTAnalytics::Channel"
+    Properties:
+      ChannelName: "TekelekChannel"
+
+  # IoT Analytics DataStore
+  TekelekDatastore:
+    Type: "AWS::IoTAnalytics::Datastore"
+    Properties:
+      DatastoreName: "TekelekDatastore"
+
+  # IoT Analytics Pipeline
+  TekelekPipeline:
+    Type: "AWS::IoTAnalytics::Pipeline"
+    Properties:
+      PipelineName: "TekelekPipeline"
+      PipelineActivities:
+        - Channel:
+            Name: "ChannelActivity"
+            ChannelName: "TekelekChannel"
+            Next: "DatastoreActivity"
+          Datastore:
+            Name: "DatastoreActivity"
+            DatastoreName: "TekelekDatastore"
+
+  # IoT Analytics DataSet
+  TekelekDataset:
+    Type: "AWS::IoTAnalytics::Dataset"
+    DependsOn: "TekelekDatastore"
+    Properties:
+      DatasetName: "TekelekDataset"
+      Actions:
+        - ActionName: "SqlAction"
+          QueryAction:
+            SqlQuery: "select device_id, gateway_id, concat(substring(time,1,19),'.000Z') as time, payload.ullage as ullage from TekelekDatastore"
+      Triggers:
+        - Schedule:
+            ScheduleExpression: "cron(0/1 * * * ? *)"
+
+  # IAM Role for IoT Rule
+  TekelekEnhancedRuleRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - iot.amazonaws.com
+            Action:
+              - sts:AssumeRole
+
+  # IAM Role Policy for IoT Rule
+  TekelekEnhancedRuleRolePolicy:
+    Type: "AWS::IAM::Policy"
+    Properties:
+      PolicyName: "tekelek-enhanced-rule-policy"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Action: "iotanalytics:BatchPutMessage"
+            Resource: "*"
+          - Effect: "Allow"
+            Action: "dynamodb:PutItem"
+            Resource:
+              Fn::GetAtt:
+                - TekelekEventsTable
+                - Arn
+      Roles:
+        - Ref: "TekelekEnhancedRuleRole"
+
+  # IoT Rule to process enhanced messages
+  TekelekEnhancedRule:
+    Type: AWS::IoT::TopicRule
+    Properties:
+      RuleName: "TekelekEnhancedRule"
+      TopicRulePayload:
+        Actions:
+          - IotAnalytics:
+              ChannelName: TekelekChannel
+              RoleArn:
+                Fn::GetAtt:
+                  - TekelekEnhancedRuleRole
+                  - Arn
+          - DynamoDBv2:
+              PutItem:
+                TableName:
+                  Ref: "TekelekEventsTable"
+              RoleArn:
+                Fn::GetAtt:
+                  - TekelekEnhancedRuleRole
+                  - Arn
+        RuleDisabled: "False"
+        Sql: SELECT * FROM 'lorawan/tekelek/+/enhanced'
+
+
+
 
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
   # Find out more about other implicit resources you can reference within SAM
   # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
   TransformLoraFunction:
-    Description: "TransformLoraFunction Lambda Function ARN"
-    Value: !GetAtt TransformLoraFunction.Arn
+    Description: "Process Uplink Function Lambda Function ARN"
+    Value: !GetAtt ProcessUplinkTekelekFunction.Arn
   TransformLoraFunctionIamRole:
     Description: "Implicit IAM Role created for TransformLoraFunction function"
-    Value: !GetAtt TransformLoraFunctionRole.Arn
+    Value: !GetAtt ProcessUplinkTekelekFunctionRole.Arn
