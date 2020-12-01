@@ -146,7 +146,6 @@ This assumes you have already set up a LoRaWAN gateway linked to your TTI Accoun
 
 **Add a new device**
 
-
 **Add an AWS Pub/Sub integration**
 Follow the [instructions here](https://thethingsstack.io/integrations/aws-iot/default/deployment-guide/)
 
@@ -182,11 +181,11 @@ From the initial map screen, click on a sensor to navigate to the sensor's detai
 
 ## Build the QuickSight BI Dashboard
 
-Sensor data has been transmitted to both the real-time dashboard and IoT Analytics. We will now use IoT Analytics to build a BI dash board using **QuickSight**.
+Sensor data has been transmitted to both the real-time dashboard and IoT Analytics. We will now use IoT Analytics to build a BI dashboard using **QuickSight**.
 
 Logon to the AWS Console and navigate to the **IoT Analytics** service and select **Data sets** from the menu.
 
-Select the **bayhealth_app_dataset**
+Select the **boschxdk_app_dataset**
 
 ![Image description](images/datasets.jpg)
 
@@ -194,7 +193,7 @@ From the **Actions** menu select **Run now** to refresh the data set.
 
 ![Image description](images/datasetrun.jpg)
 
-From the AWS Console navigate to the AWS QuickSight service in the North Virginia region.
+From the AWS Console navigate to the AWS QuickSight service in the region you are working in.
 
 If you have not registered for QuickSight in your account follow these instructions to configure the service:
 
@@ -206,10 +205,10 @@ If you have not registered for QuickSight in your account follow these instructi
 From the QuickSight menu:
 
 - Select New Analysis -> New data set -> Choose AWS IOT Analytics
-- Select an AWS IoT Analytics dataset to import - Choose **bayhealth_app_dataset**
+- Select an AWS IoT Analytics dataset to import - Choose **boschxdk_app_dataset**
 - Click Create data source -> Visualize
 - Select items from the **Field List** to visulaize
-  - Choose sensorId for Y axis
+  - Choose time for Y axis and select an Aggregation period, e.g. HOUR
   - Choose all the sensor readings for Value axis
   - Choose average from Value drop down
 
