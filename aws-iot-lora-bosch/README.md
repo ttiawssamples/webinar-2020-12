@@ -2,7 +2,7 @@
 
 This application is a starter web application dashboard that demonstrates receiving real-time updates from one or more Bosch XDK devices. The solution is built with React, AWS AppSync, and AWS IoT Core technologies.
 
-The application is a modified version of an AWS IoT sample application written by David Moser, which is available here: [aws-appsync-iot-core-realtime-dashboard](https://github.com/aws-samples/aws-appsync-iot-core-realtime-dashboard)
+The application is a modified version of an AWS IoT sample application written by David Moser, which is available here: [aws-appsync-iot-core-realtime-dashboard](https://github.com/ttiawssamples/webinar-2020-12)
 
 ![Image description](images/map.jpg)
 
@@ -16,7 +16,7 @@ Click on a sensor to view the detailed values received in realtime from that spe
 
 ![Image description](images/architecture.jpg)
 
-1. The sensor component is developed with the AWS IoT Device SDK for JavaScript. The sensors are registered as _Things_ in IoT Core and publish random values to the Cloud on a configurable frequency. Metadata about each sensor, such as its geolocation, is stored in a _Thing Shadow_.
+1. The LoRaWAN-enabled sensors in this application are connected via. The sensors are registered as _Things_ in IoT Core and publish random values to the Cloud on a configurable frequency. Metadata about each sensor, such as its geolocation, is stored in a _Thing Shadow_.
 
 2. Rules in IoT Core subscribe to the message topic and forward the JSON payload to a Lambda function and the IoT Analytics pipeline.
 
@@ -37,6 +37,12 @@ Click on a sensor to view the detailed values received in realtime from that spe
 3. [Amplify CLI](https://aws-amplify.github.io/docs/) (^4.21.1).
 
 4. A [Mapbox](https://www.mapbox.com/) account with a free _Default Public Access Token_
+
+5. A [Bosch XDK device](https://developer.bosch.com/web/xdk/overview) with LoRaWAN add-on module
+
+6. [Bosch XDK Workbench](https://developer.bosch.com/web/xdk/downloads) installed on your computer
+
+7. A cloud or self-hosted enterprise edition of [The Things Stack](https://thethingsstack.io/getting-started/)
 
 After you have installed and configured Amplify, take note of the AWS profile you selected during the configuration. If you created a profile other than **default**, you will need the profile name for later steps in the deployment.
 
