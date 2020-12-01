@@ -149,7 +149,7 @@ This assumes you have already set up a LoRaWAN gateway linked to your TTI Accoun
 **Add an AWS Pub/Sub integration**
 Follow the [instructions here](https://thethingsstack.io/integrations/aws-iot/default/deployment-guide/)
 
-## Configure your XDK sensor
+## Configure your XDK Sensor
 
 **Create a new LoRaWAN sample project in your XDK Workbench environment**
 
