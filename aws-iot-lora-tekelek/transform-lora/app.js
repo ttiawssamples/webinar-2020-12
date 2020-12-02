@@ -3,7 +3,7 @@
 TRANSFORM LORA (TEKELEK)
 
 Transforms raw string(base16) encode LoRa payload from Tekelek devices, form enhanced JSON payload and republish to enhanced AWS IoT topic
-- Adapted from TypeScript transform function provided by Tekelek
+- Adapted from TypeScript transform function provided by Tekelek 
 
 */
 const AWS = require('aws-sdk');
