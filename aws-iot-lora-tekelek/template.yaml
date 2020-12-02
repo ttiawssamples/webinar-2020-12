@@ -57,7 +57,7 @@ Resources:
         ProcessUplinkTekelek:
           Type: IoTRule
           Properties:
-            Sql: 'select * from "lorawan/+/uplink" WHERE end_device_ids.application_ids.application_id = "<your TTI app id>"'
+            Sql: 'select * from "lorawan/+/uplink" WHERE end_device_ids.application_ids.application_id = "tekelek-test-app"' # Set to the app id you used in TTS
       Policies:
         - Version: "2012-10-17" # Policy Document
           Statement:
