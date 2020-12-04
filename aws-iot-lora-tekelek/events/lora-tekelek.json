@@ -1,0 +1,55 @@
+{
+  "end_device_ids": {
+    "device_id": "tek766-2",
+    "application_ids": {
+      "application_id": "tekelek-test-app"
+    },
+    "dev_eui": "244E7B0002000805",
+    "join_eui": "244E7BF000000213",
+    "dev_addr": "2608E798"
+  },
+  "correlation_ids": [
+    "as:up:01ERMWD02BGP21D09K8PFDV7V8",
+    "gs:conn:01ERMFFEAY88FSQY23Y4W6912B",
+    "gs:up:host:01ERMFFECVETE6Z2ZKZ19ZG6TV",
+    "gs:uplink:01ERMWCZSJC83YS5JXY365VXHJ",
+    "ns:uplink:01ERMWCZSMH8P6MEWXM3E0BV19",
+    "rpc:/ttn.lorawan.v3.GsNs/HandleUplink:01ERMWCZSKFB93V448Z27NR49T"
+  ],
+  "received_at": "2020-12-03T18:04:03.532566883Z",
+  "uplink_message": {
+    "session_key_id": "xxxxxxxxxx",
+    "f_port": 16,
+    "f_cnt": 7,
+    "frm_payload": "EAAAAABdFKYAXBOmAF0UpgBdFKY=",
+    "rx_metadata": [
+      {
+        "gateway_ids": {
+          "gateway_id": "eui-58a0cbfffe800fa1",
+          "eui": "58A0CBFFFE800FA1"
+        },
+        "time": "2020-12-03T18:04:03.079798936Z",
+        "timestamp": 664932652,
+        "rssi": -48,
+        "channel_rssi": -48,
+        "snr": 9.5,
+        "uplink_token": "xxxxxxxxxxxxx"
+      }
+    ],
+    "settings": {
+      "data_rate": {
+        "lora": {
+          "bandwidth": 125000,
+          "spreading_factor": 7
+        }
+      },
+      "data_rate_index": 5,
+      "coding_rate": "4/5",
+      "frequency": "867700000",
+      "timestamp": 664932652,
+      "time": "2020-12-03T18:04:03.079798936Z"
+    },
+    "received_at": "2020-12-03T18:04:03.252042734Z",
+    "confirmed": true
+  }
+}
