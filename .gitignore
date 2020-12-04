@@ -1,5 +1,4 @@
 # OSX
 #
 .DS_Store
-aws-iot-tek.code-workspace
-aws-iot-lora-tti.code-workspace
+*.code-workspace

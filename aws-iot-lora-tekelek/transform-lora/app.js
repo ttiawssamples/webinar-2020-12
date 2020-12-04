@@ -7,63 +7,84 @@ Transforms raw string(base16) encode LoRa payload from Tekelek devices, form enh
 
 */
 const AWS = require('aws-sdk');
-const ENHANCED_TOPIC = "lorawan/tekelek/[thingName]/enhanced";
+const ENHANCED_TOPIC = "lorawan/tekelek/[deviceId]/enhanced";
+const ENDPOINT_TYPE = "iot:Data-ATS";
 
 exports.lambdaHandler = async (event, context) => {
-    try {
 
-        //         console.log("EVENT: \n" + JSON.stringify(event, null, 2))
+    console.log("EVENT: \n" + JSON.stringify(event, null, 2))
 
-        var p_raw_payload = event.payload;
-        var p_device_eui = event.eui;
-        var p_timestamp = event.timestamp;
-        var p_topic = ENHANCED_TOPIC.replace('[thingName]', event.eui);
+    var p_raw_payload = event.uplink_message.frm_payload;
+    var p_device_eui = event.end_device_ids.dev_eui;
+    var p_device_id = event.end_device_ids.device_id;
+    var p_gw_id = event.uplink_message.rx_metadata[0].gateway_ids.gateway_id;
+    var p_timestamp = event.uplink_message.rx_metadata[0].timestamp;
+    var p_time = event.received_at;
+    var p_topic = ENHANCED_TOPIC.replace('[deviceId]', p_device_id);
 
-        j_enhanced = {
-            "device_eui": p_device_eui,
-            "device_id": "n/a",
-            "gateway_id": "n/a",
-            "timestamp": p_timestamp,
-            "raw_payload": p_raw_payload,
-            "payload": decoder(parseHexString(p_raw_payload))
-        }
+    var payload = decoder(parseHexString(base64ToHex(p_raw_payload)));
 
-        // discover iot endpoint
-        var iot = new AWS.Iot();
-        var endpoint = "";
-        var params = {
-            endpointType: 'iot:Data-ATS'
-        };
 
-        iot.describeEndpoint(params, function (err, data) {
-            if (err) {
-                console.log(err, err.stack); // an error occurred
-                return err;
-            } else { // successful response, use endpoint to publish to topic
+    // create json payload. Note that Tekelek devices transmit the 4 most recent readings, 3 of which being repeats, so only mapping the first measurement set
+    var j_enhanced = {
+        "device_eui": p_device_eui,
+        "device_id": p_device_id,
+        "gateway_id": p_gw_id,
+        "timestamp": p_timestamp,
+        "time": p_time,
+        "message_type": payload.message_type,
+        "product_type": payload.unit_info.product_type,
+        "distance_cm": payload.measurement_data[0].distance_cm,
+        "temperature_c": payload.measurement_data[0].temperature_c,
+        "temperature_f": payload.measurement_data[0].temperature_f,
+        "sonic_src": payload.measurement_data[0].sonic_src,
+        "sonic_rssi": payload.measurement_data[0].sonic_rssi,
+        "alarm_status": payload.alarm_status
+    }
 
-                endpoint = data.endpointAddress;
-                const iotData = new AWS.IotData({ endpoint: endpoint });
-                var params = {
-                    payload: JSON.stringify(j_enhanced),
-                    topic: p_topic,
-                    qos: 0
-                };
-                iotData.publish(params, (err, res) => {
-                    if (err) return context.fail(err);
-                    console.log(res);
-                    return context.succeed();
-                });
-            }
+    // set up params for iot data publication
+    var iotdataparams = {
+        payload: JSON.stringify(j_enhanced),
+        topic: p_topic,
+        qos: 0
+    };
 
-        });
+    console.log("PUBLISH REQUEST: \n" + JSON.stringify(iotdataparams, null, 2))
 
-    } catch (err) {
-        console.log(err);
-        return err;
+    // discover your iot endpoint, which is required to instantiate an IoT Data client
+    var iot = new AWS.Iot();
+    var endpoint = "";
+    var iotparams = { endpointType: ENDPOINT_TYPE };
+    data = await iot.describeEndpoint(iotparams).promise();
+    endpoint = data.endpointAddress;
+
+    console.log("ENDPOINT: " + endpoint)
+
+    // Publish to enhanced topic for device
+    const iotData = new AWS.IotData({ endpoint: endpoint });
+    const resp = await iotData.publish(iotdataparams).promise();
+
+    return {
+        "PUBLISH RESPONSE": JSON.stringify(resp)
     }
 
 };
 
+function base64ToHex_v2(str) {
+    const raw = atob(str);
+    let result = '';
+    for (let i = 0; i < raw.length; i++) {
+        const hex = raw.charCodeAt(i).toString(16);
+        result += (hex.length === 2 ? hex : '0' + hex);
+    }
+    return result.toUpperCase();
+}
+
+function base64ToHex(hexstr) {
+    const buffer = Buffer.from(hexstr, 'base64');
+    const bufString = buffer.toString('hex');
+    return bufString
+}
 function parseHexString(str) {
     var result = [];
     while (str.length >= 2) {
@@ -111,7 +132,6 @@ function decoder(bytes) {
     };
 
     function measurement_data() { }
-
 
     if (bytes !== null && bytes.length > 0) {
         if (bytes.length > 0) {

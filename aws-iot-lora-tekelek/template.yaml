@@ -64,44 +64,45 @@ Resources:
             - Effect: Allow
               Action:
                 - iot:Publish
+                - iot:DescribeEndpoint
               Resource: "*"
 
   # IoT Analytics Channel
   TekelekChannel:
     Type: "AWS::IoTAnalytics::Channel"
     Properties:
-      ChannelName: "TekelekChannel"
+      ChannelName: "tekelek_app_channel"
 
   # IoT Analytics DataStore
   TekelekDatastore:
     Type: "AWS::IoTAnalytics::Datastore"
     Properties:
-      DatastoreName: "TekelekDatastore"
+      DatastoreName: "tekelek_app_datastore"
 
   # IoT Analytics Pipeline
   TekelekPipeline:
     Type: "AWS::IoTAnalytics::Pipeline"
     Properties:
-      PipelineName: "TekelekPipeline"
+      PipelineName: "tekelek_app_pipeline"
       PipelineActivities:
         - Channel:
             Name: "ChannelActivity"
-            ChannelName: "TekelekChannel"
+            ChannelName: "tekelek_app_channel"
             Next: "DatastoreActivity"
           Datastore:
             Name: "DatastoreActivity"
-            DatastoreName: "TekelekDatastore"
+            DatastoreName: "tekelek_app_datastore"
 
   # IoT Analytics DataSet
   TekelekDataset:
     Type: "AWS::IoTAnalytics::Dataset"
     DependsOn: "TekelekDatastore"
     Properties:
-      DatasetName: "TekelekDataset"
+      DatasetName: "tekelek_app_dataset"
       Actions:
         - ActionName: "SqlAction"
           QueryAction:
-            SqlQuery: "select device_id, gateway_id, concat(substring(time,1,19),'.000Z') as time, payload.ullage as ullage from TekelekDatastore"
+            SqlQuery: "SELECT device_eui, device_id, gateway_id, timestamp, concat(substring(time,1,19),'.000Z') as time, product_type, distance_cm, temperature_c, temperature_f, sonic_src, sonic_rssi, alarm_status FROM tekelek_app_datastore"
       Triggers:
         - Schedule:
             ScheduleExpression: "cron(0/1 * * * ? *)"
@@ -162,7 +163,7 @@ Resources:
                   - TekelekEnhancedRuleRole
                   - Arn
         RuleDisabled: "False"
-        Sql: SELECT * FROM 'lorawan/tekelek/+/enhanced'
+        Sql: SELECT * FROM 'lorawan/tekelek/+/enhanced where payload.message_type = "Measurement"'
 
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
