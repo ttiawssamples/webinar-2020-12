@@ -149,7 +149,7 @@ Resources:
       TopicRulePayload:
         Actions:
           - IotAnalytics:
-              ChannelName: TekelekChannel
+              ChannelName: tekelek_app_channel
               RoleArn:
                 Fn::GetAtt:
                   - TekelekEnhancedRuleRole
@@ -163,7 +163,7 @@ Resources:
                   - TekelekEnhancedRuleRole
                   - Arn
         RuleDisabled: "False"
-        Sql: SELECT * FROM 'lorawan/tekelek/+/enhanced where payload.message_type = "Measurement"'
+        Sql: SELECT * FROM 'lorawan/tekelek/+/enhanced' where message_type = 'Measurement'
 
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
