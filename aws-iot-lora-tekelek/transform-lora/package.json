@@ -6,7 +6,8 @@
   "author": "Chris Wood, AWS",
   "license": "MIT",
   "dependencies": {
-    "y18n": ">=4.0.1"
+    "y18n": ">=4.0.1",
+    "lodash": ">=4.17.21"
   },
   "scripts": {
     "test": "mocha tests/unit/"
@@ -14,6 +15,7 @@
   "devDependencies": {
     "chai": "^4.2.0",
     "mocha": "^6.1.4",
-    "y18n": ">=4.0.1"    
+    "y18n": ">=4.0.1",
+    "lodash": ">=4.17.21"
   }
 }
