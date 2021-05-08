@@ -5,12 +5,15 @@
   "main": "app.js",
   "author": "Chris Wood, AWS",
   "license": "MIT",
-  "dependencies": {},
+  "dependencies": {
+    "y18n": ">=4.0.1"
+  },
   "scripts": {
     "test": "mocha tests/unit/"
   },
   "devDependencies": {
     "chai": "^4.2.0",
-    "mocha": "^6.1.4"
+    "mocha": "^6.1.4",
+    "y18n": ">=4.0.1"    
   }
 }
